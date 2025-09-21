@@ -32,14 +32,41 @@ data = pd.read_json('me-dice-stats-json-data.json', orient='records')
 
 # then extract the Series under 'PLAYER_DICE', which itself contains a list of dictionaries that holds the data
 #   I want
-datadict = data['PLAYER_DICE'].to_dict()[0][7]
+datadict = data['PLAYER_DICE'][0][7]
 
 # the data consists of d20 die results. this part is to add a column that associates the frequency of the roll with the
 #   corresponding die value
 tuples = []
 for i in range(len(datadict['ROLLS'])):
     tuples.append((i+1,datadict['ROLLS'][i]))
+total_rolls = datadict['TOTAL_ROLLS']
 
 # finally, recreate the dataframe with the values desired
 rolldata = pd.DataFrame.from_records(tuples, columns=['Die Value', 'Frequency'])
-print(rolldata)
+diesize = len(rolldata)
+expectedvalue = float(total_rolls)/float(diesize)
+
+fig, ax = plt.subplots()
+ax.set_xlabel('Roll')
+ax.set_xticks(ticks=rolldata['Die Value'])
+ax.set_ylabel('Frequency')
+ax.set_yticks(ticks=range(1,max(rolldata['Frequency'])+1))
+ax.set_title('Frequency of Dice rolls')
+ax.bar(rolldata['Die Value'], rolldata['Frequency'])
+ax.axhline(y=expectedvalue, color='r')
+
+ydiffs = [expectedvalue] * diesize - rolldata['Frequency']
+ylowererror = []
+yuppererror = []
+for e in ydiffs:
+    if e < 0:
+        ylowererror.append(abs(e))
+        yuppererror.append(0)
+    else:
+        yuppererror.append(e)
+        ylowererror.append(0)
+
+yerror = [ylowererror, yuppererror]
+
+ax.errorbar(rolldata['Die Value'], rolldata['Frequency'], yerr = yerror, fmt='none', color='r', capsize=7)
+fig.show()
