@@ -22,6 +22,8 @@
 # This project is to visualize and quantify how lucky or unlucky I am when playing TTRPGs. The data is from the virtual
 #   tabletop I host and includes my roll data from the last several sessions.
 
+# Question for data: Have I been as unlucky as it feels I have been with my dice rolls?
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -31,7 +33,7 @@ import os
 #   one I wanted buried inside other parts of it
 
 # first, read the data in the json file that is formatted as 'records'
-data = pd.read_json('me-dice-stats-json-data.json', orient='records')
+data = pd.read_json('data/me-dice-stats-json-data.json', orient='records')
 
 # then extract the Series under 'PLAYER_DICE', which itself contains a list of dictionaries that holds the data
 #   I want
@@ -61,7 +63,7 @@ ax.set_xlabel('Roll')
 ax.set_xticks(ticks=rolldata['Die Value'])
 ax.set_ylabel('Frequency')
 ax.set_yticks(ticks=range(1,max(rolldata['Frequency'])+1))
-ax.set_title('Frequency of Dice rolls')
+ax.set_title('Frequency of d20 Rolls')
 
 # create a bar chart
 ax.bar(rolldata['Die Value'], rolldata['Frequency'], color='black')
