@@ -21,6 +21,7 @@
 
 # This project is to visualize and quantify how lucky or unlucky I am when playing TTRPGs. The data is from the virtual
 #   tabletop I host and includes my roll data from the last several sessions.
+#   Data can be found here: https://drive.google.com/drive/folders/1jjDlTOlsD7m83C1Wg4dq9GzL9NuWW2UP?usp=drive_link
 
 # Question for data: Have I been as unlucky as it feels I have been with my dice rolls?
 
@@ -35,8 +36,7 @@ import os
 # first, read the data in the json file that is formatted as 'records'
 data = pd.read_json('data/me-dice-stats-json-data.json', orient='records')
 
-# then extract the Series under 'PLAYER_DICE', which itself contains a list of dictionaries that holds the data
-#   I want
+# then extract the Series under 'PLAYER_DICE', which itself contains a list of dictionaries that holds the data I want
 datadict = data['PLAYER_DICE'][0][7]
 
 # the data consists of d20 die results. this part is to add a column that associates the frequency of the roll with the
@@ -112,12 +112,13 @@ ax1.plot(atkdata['Die Value'], atktrend(atkdata['Die Value']), color='r')
 savestrend = np.polynomial.polynomial.Polynomial.fit(savesdata['Die Value'], savesdata['Frequency'], 1)
 ax2.plot(savesdata['Die Value'], savestrend(savesdata['Die Value']), color='r')
 
-#check if a folder titled 'charts' exists in the file location. if not, make one
+# check if a folder titled 'charts' exists in the file location. if not, make one
 if not os.path.exists('charts'):
     os.mkdir('charts')
 
+# save the charts in the new (or existing) folder
 fig1.savefig('charts/alld20.png', dpi=800)
 fig2.savefig('charts/atksaves.png', dpi=800)
 
-fig1.show()
-fig2.show()
+# display the charts for the user's viewing pleasure
+plt.show()
