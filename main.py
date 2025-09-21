@@ -24,16 +24,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+# this is probably an awful way of parsing this, but the json data used contains quite a few different records, with the
+#   one I wanted buried inside other parts of it.
+
+# first, read the data in the json file that is formatted as 'records'
 data = pd.read_json('me-dice-stats-json-data.json', orient='records')
 
-dataframe1 = pd.DataFrame.from_records(data['PLAYER_DICE'])
+# then extract the Series under 'PLAYER_DICE', which itself contains a list of dictionaries that holds the data
+#   I want
+datadict = data['PLAYER_DICE'].to_dict()[0][7]
 
-datadict = dataframe1[7].to_dict()[0]
+# the data consists of d20 die results. this part is to add a column that associates the frequency of the roll with the
+#   corresponding die value
+tuples = []
+for i in range(len(datadict['ROLLS'])):
+    tuples.append((i+1,datadict['ROLLS'][i]))
 
-print(datadict['ROLLS'])
-
-
-
-#dataframe2 = pd.DataFrame.from_dict(dataframe1[7].to_dict()[0])
-#print(datadict)
-
+# finally, recreate the dataframe with the values desired
+rolldata = pd.DataFrame.from_records(tuples, columns=['Die Value', 'Frequency'])
+print(rolldata)
