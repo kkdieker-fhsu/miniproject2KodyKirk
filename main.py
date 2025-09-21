@@ -24,3 +24,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+data = pd.read_json('me-dice-stats-json-data.json', orient='records')
+
+dataframe1 = pd.DataFrame.from_records(data['PLAYER_DICE'])
+
+datadict = dataframe1[7].to_dict()[0]
+
+print(datadict['ROLLS'])
+
+
+
+#dataframe2 = pd.DataFrame.from_dict(dataframe1[7].to_dict()[0])
+#print(datadict)
+
