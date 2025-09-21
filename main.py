@@ -24,6 +24,7 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import os
 
 # this is probably an awful way of parsing this, but the json data used contains quite a few different records, with the
@@ -47,7 +48,7 @@ for i in range(len(datadict['ROLLS'])):
     tuplessave.append((i+1,datadict['SAVES_ROLLS'][i]))
 total_rolls = datadict['TOTAL_ROLLS']
 
-# finally, recreate the dataframe with the values desired and get some useful values from it
+# finally, recreate the dataframes with the values desired and get some useful values from it
 rolldata = pd.DataFrame.from_records(tuplesall, columns=['Die Value', 'Frequency'])
 atkdata = pd.DataFrame.from_records(tuplesatk, columns=['Die Value', 'Frequency'])
 savesdata = pd.DataFrame.from_records(tuplessave, columns=['Die Value', 'Frequency'])
@@ -62,9 +63,8 @@ ax.set_ylabel('Frequency')
 ax.set_yticks(ticks=range(1,max(rolldata['Frequency'])+1))
 ax.set_title('Frequency of Dice rolls')
 
-# create a bar chart with a horizontal line across it denoting the expected value of the die
+# create a bar chart
 ax.bar(rolldata['Die Value'], rolldata['Frequency'], color='black')
-ax.axhline(y=expectedvalue, color='g')
 
 # this part is to create the bars showing the distance of each result from the expected value using error bars
 # first, get the difference for each data point
@@ -88,16 +88,34 @@ for e in ydiffs:
 # create the error array for plotting
 yerror = [ylowererror, yuppererror]
 
-# plot the error bars
+# plot the error bars and a bar for the expected frequencies for each result
 ax.errorbar(rolldata['Die Value'], rolldata['Frequency'], yerr = yerror, fmt='none', color='r')
+ax.axhline(y=expectedvalue, color='g')
 
-#attackdata =
-
+# create a second figure with two subplot that share an x axis
 fig2, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 ax1.set_title('Attack Rolls')
 ax2.set_title('Saves')
 
-ax1.scatter(rolldata['Die Value'], rolldata['Frequency'])
+ax1.bar(atkdata['Die Value'], atkdata['Frequency'], color='black')
+ax2.bar(savesdata['Die Value'], savesdata['Frequency'], color='black')
+ax2.set_xticks(ticks=rolldata['Die Value'])
+fig2.supylabel('Frequency')
+
+# having some fun with trend lines here
+# probably has little in the way of true statistical rigor, but it's fun to see how the rolls trend
+atktrend = np.polynomial.polynomial.Polynomial.fit(atkdata['Die Value'], atkdata['Frequency'], 5)
+ax1.plot(atkdata['Die Value'], atktrend(atkdata['Die Value']), color='r')
+
+savestrend = np.polynomial.polynomial.Polynomial.fit(savesdata['Die Value'], savesdata['Frequency'], 1)
+ax2.plot(savesdata['Die Value'], savestrend(savesdata['Die Value']), color='r')
+
+#check if a folder titled 'charts' exists in the file location. if not, make one
+if not os.path.exists('charts'):
+    os.mkdir('charts')
+
+fig1.savefig('charts/alld20.png', dpi=800)
+fig2.savefig('charts/atksaves.png', dpi=800)
 
 fig1.show()
 fig2.show()
