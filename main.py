@@ -38,18 +38,24 @@ datadict = data['PLAYER_DICE'][0][7]
 
 # the data consists of d20 die results. this part is to add a column that associates the frequency of the roll with the
 #   corresponding die value
-tuples = []
+tuplesall = []
+tuplesatk = []
+tuplessave = []
 for i in range(len(datadict['ROLLS'])):
-    tuples.append((i+1,datadict['ROLLS'][i]))
+    tuplesall.append((i+1,datadict['ROLLS'][i]))
+    tuplesatk.append((i+1,datadict['ATK_ROLLS'][i]))
+    tuplessave.append((i+1,datadict['SAVES_ROLLS'][i]))
 total_rolls = datadict['TOTAL_ROLLS']
 
 # finally, recreate the dataframe with the values desired and get some useful values from it
-rolldata = pd.DataFrame.from_records(tuples, columns=['Die Value', 'Frequency'])
+rolldata = pd.DataFrame.from_records(tuplesall, columns=['Die Value', 'Frequency'])
+atkdata = pd.DataFrame.from_records(tuplesatk, columns=['Die Value', 'Frequency'])
+savesdata = pd.DataFrame.from_records(tuplessave, columns=['Die Value', 'Frequency'])
 diesize = len(rolldata)
 expectedvalue = float(total_rolls)/float(diesize)
 
 # begin plotting
-fig, ax = plt.subplots()
+fig1, ax = plt.subplots()
 ax.set_xlabel('Roll')
 ax.set_xticks(ticks=rolldata['Die Value'])
 ax.set_ylabel('Frequency')
@@ -84,4 +90,14 @@ yerror = [ylowererror, yuppererror]
 
 # plot the error bars
 ax.errorbar(rolldata['Die Value'], rolldata['Frequency'], yerr = yerror, fmt='none', color='r')
-fig.show()
+
+#attackdata =
+
+fig2, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+ax1.set_title('Attack Rolls')
+ax2.set_title('Saves')
+
+ax1.scatter(rolldata['Die Value'], rolldata['Frequency'])
+
+fig1.show()
+fig2.show()
